@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace Ecommerce.Web.Results
+namespace Ecommerce.Web.Filters.Results
 {
     public class AuthenticationFailureResult : IHttpActionResult
     {
@@ -25,9 +25,11 @@ namespace Ecommerce.Web.Results
 
         private HttpResponseMessage Execute()
         {
-            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-            response.RequestMessage = Request;
-            response.ReasonPhrase = ReasonPhrase;
+            HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+            {
+                RequestMessage = Request,
+                ReasonPhrase = ReasonPhrase
+            };
             return response;
         } 
     }

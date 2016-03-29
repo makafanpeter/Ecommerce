@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.Filters;
-using Ecommerce.Web.Results;
+using Ecommerce.Web.Filters.Results;
 
 
 namespace Ecommerce.Web.Filters

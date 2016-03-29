@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Web.Mvc;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Web.Http;
+using System.Web.Http.Routing;
 using Ecommerce.Data.Infrastructure;
 using Ecommerce.Data.Repositories;
+using Ecommerce.Domain.DTO;
 using Ecommerce.Domain.Entities;
 using Ecommerce.Service;
 using Ecommerce.Service.Infrastructure;
@@ -12,12 +16,11 @@ using Ecommerce.Web.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Ecommerce.UnitTest
+namespace Ecommerce.UnitTest.Controllers
 {
     [TestClass]
-    public class HomeControllerUnitTest
+    public class ProductsControllerUnitTest
     {
-
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IProductRepository> _productRepositoryMock;
         private IRepositoryService<Product> _productService;
@@ -30,7 +33,7 @@ namespace Ecommerce.UnitTest
             _productRepositoryMock = new Mock<IProductRepository>();
             _unitOfWorkMock = new Mock<IUnitOfWork>();
 
-            _productService = new ProductService(_productRepositoryMock.Object,_unitOfWorkMock.Object);
+            _productService = new ProductService(_productRepositoryMock.Object, _unitOfWorkMock.Object);
 
             _productRepository = _productRepositoryMock.Object;
 
@@ -62,14 +65,14 @@ namespace Ecommerce.UnitTest
 
             _productRepositoryMock.Setup(m => m.Add(It.IsAny<Product>())).Callback((Product product) =>
             {
-                product.Id =  products.Count + 1;
+                product.Id = products.Count + 1;
                 products.Add(product);
             });
 
 
             _productRepositoryMock.Setup(m => m.GetAll()).Returns(products);
 
-            _productRepositoryMock.Setup(m => m.Get(It.IsAny<Expression<Func<Product, bool>>>())).Returns((Expression<Func<Product,  bool>> expression) =>
+            _productRepositoryMock.Setup(m => m.Get(It.IsAny<Expression<Func<Product, bool>>>())).Returns((Expression<Func<Product, bool>> expression) =>
             {
                 var data = products.Where(expression.Compile()).FirstOrDefault();
                 return data;
@@ -91,36 +94,80 @@ namespace Ecommerce.UnitTest
                 products.Remove(p);
             }));
 
+            _productRepositoryMock.Setup(m => m.GetById(It.IsAny<long>())).Returns((long id) =>
+            {
+                var product = products.FirstOrDefault(i => i.Id == id);
+                return product;
+            });
+
             _unitOfWorkMock.Setup(i => i.Commit()).Callback(() =>
             {
-                
+
             });
 
         }
-
         [TestMethod]
         public void TestMethod1()
         {
-            var products = _productService.GetAll();
+            var controller = new ProductsController(_productService)
+            {
+                Request = new HttpRequestMessage(),
+                Configuration = new HttpConfiguration()
+            };
 
-            Assert.IsNotNull(products);
+            var response = controller.Get();
+
+            Assert.IsNotNull(response);
+        }
+
+         [TestMethod]
+        public void TestMethod2()
+        {
+
+             //Arrange
+            var controller = new ProductsController(_productService)
+            {
+                Request = new HttpRequestMessage()
+                {
+                    RequestUri = new Uri("http://localhost/api/products")
+                },
+                Configuration = new HttpConfiguration()
+            };
+            controller.Configuration.Routes.MapHttpRoute(
+            name: "DefaultApi",
+            routeTemplate: "api/{controller}/{id}",
+            defaults: new { id = RouteParameter.Optional }
+            );
+
+            controller.RequestContext.RouteData = new HttpRouteData(
+            route: new HttpRoute(),
+            values: new HttpRouteValueDictionary { { "controller", "products" } });
+
+             //
+            var response = controller.Get(1);
+
+             //
+            Assert.IsNotNull(response);
+            //Assert.AreEqual("http://localhost/api/products/42", response.Headers.Location.AbsoluteUri);
         }
 
         [TestMethod]
-        public void TestMethod2()
+        public  void TestMethod3()
         {
-            var products = _productService.GetAll();
+            var client = new HttpClient()
+            {
+                BaseAddress = new Uri("http://localhost:1857"),
+                DefaultRequestHeaders = { }
 
-            var x = _productRepository.GetAll();
+            };
 
-           var controller = new HomeController(_productService);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var response = client.GetAsync("api/products/1009").Result;
+            
+            Assert.IsTrue(response.IsSuccessStatusCode);
+            var product = response.Content.ReadAsAsync<ProductDto>().Result;
+            Assert.IsInstanceOfType(product, typeof (ProductDto));
 
-            var view = controller.Index() as ViewResult;
-
-            var result = (List<Product>)view.Model; 
-
-            Assert.IsNotNull(result);
-            Assert.AreEqual(x,products);
         }
     }
 }

@@ -113,11 +113,11 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="HomeControllerUnitTest.cs" />
-    <Compile Include="ManageProductsControllerUnitTest.cs" />
+    <Compile Include="Controllers\HomeControllerUnitTest.cs" />
+    <Compile Include="Controllers\ManageProductsControllerUnitTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ProductsControllerUnitTest.cs" />
-    <Compile Include="OrdersControllerUnitTest.cs" />
+    <Compile Include="Controllers\ProductsControllerUnitTest.cs" />
+    <Compile Include="Controllers\OrdersControllerUnitTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

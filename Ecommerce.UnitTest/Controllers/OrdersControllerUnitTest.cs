@@ -9,7 +9,6 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Routing;
-using System.Web.Routing;
 using Ecommerce.Data.Infrastructure;
 using Ecommerce.Data.Repositories;
 using Ecommerce.Domain.DTO;
@@ -19,7 +18,7 @@ using Ecommerce.Web.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Ecommerce.UnitTest
+namespace Ecommerce.UnitTest.Controllers
 {
     [TestClass]
     public class OrdersControllerUnitTest
@@ -33,7 +32,7 @@ namespace Ecommerce.UnitTest
         private Mock<HttpRequestContext> _controllerContextMock;
         private Mock<IPrincipal> _principalMock;
         private Mock<HttpRequestBase> _requestContextMock;
-        private readonly string userName = "demo@test.ng";
+        private readonly string userName = "admin@ecommerce.ng";
 
         [TestInitialize]
         public void Initialize()
@@ -180,7 +179,7 @@ namespace Ecommerce.UnitTest
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
                 Convert.ToBase64String(
                     System.Text.Encoding.ASCII.GetBytes(
-                        string.Format("{0}:{1}", "demo@ace.ng", "Test123456"))));
+                        string.Format("{0}:{1}", "admin@ecommerce.ng", "Test123456"))));
 
             var response = client.PostAsJsonAsync("api/orders",dto).Result;
             

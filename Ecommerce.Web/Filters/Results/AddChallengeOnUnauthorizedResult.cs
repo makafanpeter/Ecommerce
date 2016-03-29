@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 
-namespace Ecommerce.Web.Results
+namespace Ecommerce.Web.Filters.Results
 {
     public class AddChallengeOnUnauthorizedResult : IHttpActionResult
     {

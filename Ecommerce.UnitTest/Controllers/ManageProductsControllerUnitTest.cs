@@ -15,7 +15,7 @@ using Ecommerce.Web.Areas.Admin.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Ecommerce.UnitTest
+namespace Ecommerce.UnitTest.Controllers
 {
     [TestClass]
     public class ManageProductsControllerUnitTest

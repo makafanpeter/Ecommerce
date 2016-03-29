@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http.Headers;
 using System.Web.Http.Filters;
-using Ecommerce.Web.Results;
+using Ecommerce.Web.Filters.Results;
 
 
 namespace Ecommerce.Web.Filters
