@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Principal;
@@ -9,12 +10,43 @@ using System.Web.Http.Filters;
 using Ecommerce.Web.Filters.Results;
 
 
+
 namespace Ecommerce.Web.Filters
 {
     public abstract class BasicAuthenticationAttribute : Attribute, IAuthenticationFilter
     {
         public string Realm { get; set; }
+        private string _roles;
+        private string[] _rolesSplit = new string[] { };
 
+        /// <summary>
+        /// Gets or sets the authorized roles.
+        /// </summary>
+        /// <value>
+        /// The roles string.
+        /// </value>
+        /// <remarks>Multiple role names can be specified using the comma character as a separator.</remarks>
+        public string Roles
+        {
+            get { return _roles ?? string.Empty; }
+            set
+            {
+                _roles = value;
+                _rolesSplit = SplitString(value);
+            }
+        }
+
+        private static string[] SplitString(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return new string[]{};
+            }
+            var split = value.Split(',').Select(p => p.Trim()).Where(p => !string.IsNullOrEmpty(p));
+            return split.ToArray();
+        }
+
+       
         public async Task AuthenticateAsync(HttpAuthenticationContext context, CancellationToken cancellationToken)
         {
             HttpRequestMessage request = context.Request;

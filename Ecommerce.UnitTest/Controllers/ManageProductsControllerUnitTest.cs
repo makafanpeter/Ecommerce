@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Routing;
 using Ecommerce.Data.Infrastructure;
@@ -80,11 +81,15 @@ namespace Ecommerce.UnitTest.Controllers
             _productRepositoryMock.Setup(m => m.Update(It.IsAny<Product>())).Callback(((Product product) =>
             {
                 var t = products.Single(p => p.Id == product.Id);
-                t.Id = product.Id;
-                t.Name = product.Name;
-                t.ActualCost = product.ActualCost;
-                t.Price = product.Price;
-                t.CategoryId = product.CategoryId;
+                if (t != null)
+                {
+                    t.Id = product.Id;
+                    t.Name = product.Name;
+                    t.ActualCost = product.ActualCost;
+                    t.Price = product.Price;
+                    t.CategoryId = product.CategoryId;   
+                }
+               
             })).Verifiable();
 
 
@@ -143,7 +148,8 @@ namespace Ecommerce.UnitTest.Controllers
             route: new HttpRoute(),
             values: new HttpRouteValueDictionary { { "controller", "products" } });
 
-             //
+             //Arrange
+            var count = _productRepository.GetAll().Count();
              var product = new ProductDto()
              {
                  Id = 1,
@@ -153,9 +159,52 @@ namespace Ecommerce.UnitTest.Controllers
              };
             var response = controller.Post(product);
 
+             
+
              //
             Assert.IsNotNull(response);
+
+            Assert.AreNotEqual(count, _productRepository.GetAll().Count());
+            
             Assert.AreEqual("http://localhost/api/products/5", response.Headers.Location.AbsoluteUri);
         }
+
+         [TestMethod]
+         public void TestMethod3()
+         {
+
+             var client = new HttpClient()
+             {
+                 BaseAddress = new Uri("http://localhost:1857"),
+                 DefaultRequestHeaders = { }
+
+             };
+
+             var dto = new OrderDto()
+             {
+                 Details = new List<ProductDetailDto>()
+            {
+                new ProductDetailDto(){Product = "Sugar", Price = 200, ProductId = 1009, Quantity = 1},
+                new ProductDetailDto(){Product = "Bread", Price = 200, ProductId = 1010, Quantity = 1}
+            }
+             };
+
+             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                 Convert.ToBase64String(
+                     System.Text.Encoding.ASCII.GetBytes(
+                         string.Format("{0}:{1}", "admin@ecommerce.ng", "Test123456"))));
+
+             //var response = client.PostAsJsonAsync("api/products", dto).Result;
+             var response = client.GetAsync("api/ManageProducts").Result;
+
+             var products = response.Content.ReadAsAsync<IEnumerable<ProductDto>>().Result;
+
+             Assert.IsNotNull(products);
+             
+             Assert.IsTrue(response.IsSuccessStatusCode);
+
+             
+         }
     }
 }

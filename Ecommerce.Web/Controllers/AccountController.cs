@@ -42,7 +42,7 @@ namespace Ecommerce.Web.Controllers
                var result = await UserManager.CreateAsync(user);
                if (result.Succeeded)
                {
-                   await UserManager.AddToRolesAsync(user.Id, UserTypeEnum.Administration.ToString());
+                   await UserManager.AddToRolesAsync(user.Id, UserTypeEnum.Administrator.ToString());
                    await SignInAsync(user, true);
                    return RedirectToAction("Manage");
                }
@@ -50,6 +50,25 @@ namespace Ecommerce.Web.Controllers
             }
 
             throw new InvalidOperationException("Default initial account already exists!");
+        }
+
+
+        // GET: /Account/CreateInitialAccount
+        [AllowAnonymous]
+        public virtual async Task<ActionResult> ResestAdminPassword()
+        {
+            var user = await UserManager.FindByEmailAsync(DefaultUserEmail);
+            var hasLocalAccount = user != null;
+            if (hasLocalAccount)
+            {
+                var result =  await UserManager.RemovePasswordAsync(user.Id);
+                if (result.Succeeded)
+                {
+                    await SignInAsync(user, true);
+                    return RedirectToAction("Manage");
+                }
+            }
+            throw new InvalidOperationException("Admin Account not configured");
         }
         //
         // GET: /Account/Login

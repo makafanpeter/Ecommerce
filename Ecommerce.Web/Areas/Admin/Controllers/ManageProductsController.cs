@@ -7,10 +7,12 @@ using System.Web.Http;
 using Ecommerce.Domain.DTO;
 using Ecommerce.Domain.Entities;
 using Ecommerce.Service.Infrastructure;
+using Ecommerce.Web.Filters;
 
 namespace Ecommerce.Web.Areas.Admin.Controllers
 {
-    [Authorize(Roles = "Administration")]
+    [IdentityBasicAuthentication(Roles = "Administrator")]
+    [Authorize(Roles = "Administrator")]
     public class ManageProductsController : ApiController
     {
           private readonly IRepositoryService<Product> _productService;

@@ -54,7 +54,7 @@ namespace Ecommerce.Data.Migrations
             products.ForEach(p => context.Products.Add(p));
             context.SaveChanges();
 
-            var roles  = new[]{UserTypeEnum.Administration.ToString(), UserTypeEnum.StandardUser.ToString()};
+            var roles  = new[]{UserTypeEnum.Administrator.ToString(), UserTypeEnum.StandardUser.ToString()};
 
             foreach (var role in roles)
             {
